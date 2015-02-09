@@ -12,31 +12,43 @@
                 padding: 1em;
                 width: 50%;
             }
+            .container{
+                overflow-y: auto;
+            }
             paper-fab {
                 background-color: #03a9f4;
             }
         </style>
-        <div horizontal layout>
+        <div horizontal layout fit>
             <div class="half" vertical layout>
                 <div horizontal layout end-justified>
-                    <paper-fab mini icon="send" on-tap="{{send}}"></paper-fab>
+                    <paper-fab mini icon="send" on-tap="{{send}}" disabled?="{{converting}}"></paper-fab>
                 </div>
-                <lily-editor source="{{source}}" flex></lily-editor>
+                <div flex class="container">
+                    <lily-editor source="{{source}}" flex></lily-editor>
+                </div>
             </div>
-            <lily-preview class="half" source="{{rendered}}"></lily-preview>
+            <lily-preview class="half" source="{{rendered}}" converting="{{converting}}"></lily-preview>
         </div>
         <core-ajax id="convertAjax"
                 method="POST"
                 url="/convert"
                 handleAs="text"
                 body="{{source}}"
-                response="{{rendered}}"></core-ajax>
+                on-core-response="{{responsed}}"></core-ajax>
     </template>
     <script>
         Polymer({
             send: function(){
                 this.$.convertAjax.go();
+                this.converting = true;
+            },
+            responsed: function(event, detail, target){
+                this.rendered = detail.response;
+                this.converting = false;
             }
         });
     </script>
 </polymer-element>
+
+

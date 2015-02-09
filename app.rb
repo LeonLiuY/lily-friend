@@ -8,5 +8,6 @@ end
 
 post '/convert' do
   text = request.body.read
+  sleep 5
   text.upcase
 end

@@ -1,15 +1,23 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
 
 <link rel="import" href="../lily-editor/lily-editor.html">
 <link rel="import" href="../lily-preview/lily-preview.html">
-<polymer-element name="lily-preview" attributes="source">
+<polymer-element name="lily-preview" attributes="source converting">
 
     <template>
-        <p>{{source}}</p>
+        <div vertical layout>
+            <template if="{{!converting}}">
+                <p>{{source}}</p>
+            </template>
+            <template if="{{converting}}">
+                <paper-spinner active></paper-spinner>
+            </template>
+        </div>
     </template>
-    <script>
-        Polymer({
+        <script>
+            Polymer({
 
-        });
-    </script>
+            });
+        </script>
 </polymer-element>
