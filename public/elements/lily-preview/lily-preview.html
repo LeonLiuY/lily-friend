@@ -3,12 +3,19 @@
 
 <link rel="import" href="../lily-editor/lily-editor.html">
 <link rel="import" href="../lily-preview/lily-preview.html">
-<polymer-element name="lily-preview" attributes="source converting">
+<polymer-element name="lily-preview" attributes="source converting error">
 
     <template>
         <div vertical layout>
             <template if="{{!converting}}">
-                <p>{{source}}</p>
+                <template if="{{!error && source}}">
+                    <div>
+                        <img src="/scores?path={{encode(source)}}"></img>
+                    </div>
+                </template>
+                <template if="{{error}}">
+                    <pre>{{error}}</pre>
+                </template>
             </template>
             <template if="{{converting}}">
                 <paper-spinner active></paper-spinner>
@@ -17,7 +24,9 @@
     </template>
         <script>
             Polymer({
-
+                encode: function(text){
+                    return encodeURI(text);
+                }
             });
         </script>
 </polymer-element>

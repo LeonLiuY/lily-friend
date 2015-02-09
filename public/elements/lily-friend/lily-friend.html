@@ -28,14 +28,15 @@
                     <lily-editor source="{{source}}" flex></lily-editor>
                 </div>
             </div>
-            <lily-preview class="half" source="{{rendered}}" converting="{{converting}}"></lily-preview>
+            <lily-preview class="half" source="{{rendered}}" converting="{{converting}}" error="{{error}}"></lily-preview>
         </div>
         <core-ajax id="convertAjax"
                 method="POST"
                 url="/convert"
                 handleAs="text"
                 body="{{source}}"
-                on-core-response="{{responsed}}"></core-ajax>
+                on-core-response="{{responsed}}"
+                on-core-error="{{errored}}"></core-ajax>
     </template>
     <script>
         Polymer({
@@ -45,6 +46,11 @@
             },
             responsed: function(event, detail, target){
                 this.rendered = detail.response;
+                this.error = undefined;
+                this.converting = false;
+            },
+            errored: function(event, detail, target) {
+                this.error = detail.xhr.responseText;
                 this.converting = false;
             }
         });
