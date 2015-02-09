@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../bower_components/core-ajax/core-ajax.html">
 
 <link rel="import" href="../lily-editor/lily-editor.html">
 <link rel="import" href="../lily-preview/lily-preview.html">
@@ -24,11 +25,17 @@
             </div>
             <lily-preview class="half" source="{{rendered}}"></lily-preview>
         </div>
+        <core-ajax id="convertAjax"
+                method="POST"
+                url="/convert"
+                handleAs="text"
+                body="{{source}}"
+                response="{{rendered}}"></core-ajax>
     </template>
     <script>
         Polymer({
             send: function(){
-                this.rendered = this.source;
+                this.$.convertAjax.go();
             }
         });
     </script>

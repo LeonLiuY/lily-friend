@@ -7,6 +7,6 @@ end
 
 
 post '/convert' do
-  text = requets.body.read
+  text = request.body.read
   text.upcase
 end
