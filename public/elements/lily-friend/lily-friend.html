@@ -1,0 +1,35 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+
+<link rel="import" href="../lily-editor/lily-editor.html">
+<link rel="import" href="../lily-preview/lily-preview.html">
+<polymer-element name="lily-friend">
+
+    <template>
+        <style>
+            .half {
+                padding: 1em;
+                width: 50%;
+            }
+            paper-fab {
+                background-color: #03a9f4;
+            }
+        </style>
+        <div horizontal layout>
+            <div class="half" vertical layout>
+                <div horizontal layout end-justified>
+                    <paper-fab mini icon="send" on-tap="{{send}}"></paper-fab>
+                </div>
+                <lily-editor source="{{source}}" flex></lily-editor>
+            </div>
+            <lily-preview class="half" source="{{rendered}}"></lily-preview>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            send: function(){
+                this.rendered = this.source;
+            }
+        });
+    </script>
+</polymer-element>
