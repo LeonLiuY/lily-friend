@@ -28,7 +28,14 @@
                     <lily-editor source="{{source}}" flex></lily-editor>
                 </div>
             </div>
-            <lily-preview class="half" source="{{rendered}}" converting="{{converting}}" error="{{error}}"></lily-preview>
+            <div class="half" vertical layout>
+                <div horizontal layout end-justified>
+                    <paper-fab mini icon="send" on-tap="{{send}}" disabled?="{{converting}}"></paper-fab>
+                </div>
+                <div flex class="container">
+                    <lily-preview source="{{rendered}}" converting="{{converting}}" error="{{error}}"></lily-preview>
+                </div>
+            </div>
         </div>
         <core-ajax id="convertAjax"
                 method="POST"

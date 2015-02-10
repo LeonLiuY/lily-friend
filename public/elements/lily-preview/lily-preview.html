@@ -10,7 +10,7 @@
             <template if="{{!converting}}">
                 <template if="{{!error && source}}">
                     <div>
-                        <img src="/scores?path={{encode(source)}}"></img>
+                        <img src="/scores?path={{encode(source)}}">
                     </div>
                 </template>
                 <template if="{{error}}">
