@@ -50,9 +50,9 @@
             </div>
             <div class="half" vertical layout>
                 <div horizontal layout center-justified class="header">
-                    <paper-icon-button mini icon="description" disabled?="{{converting}}"
+                    <paper-icon-button mini icon="description" disabled?="{{converting || error}}"
                                        on-tap="{{toggle}}"></paper-icon-button>
-                    <paper-icon-button mini icon="archive" disabled?="{{converting}}"></paper-icon-button>
+                    <paper-icon-button mini icon="archive" disabled?="{{converting || error}}"></paper-icon-button>
                 </div>
                 <paper-shadow z="1" id="log" hidden?="{{!outVisible}}">
                     <pre>{{out}}</pre>
