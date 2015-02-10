@@ -1,24 +1,15 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
 
 <link rel="import" href="../lily-editor/lily-editor.html">
 <link rel="import" href="../lily-preview/lily-preview.html">
-<polymer-element name="lily-preview" attributes="source converting error">
+<polymer-element name="lily-preview" attributes="source">
 
     <template>
         <div vertical layout>
-            <template if="{{!converting}}">
-                <template if="{{!error && source}}">
-                    <div>
-                        <img src="/scores?path={{encode(source)}}">
-                    </div>
-                </template>
-                <template if="{{error}}">
-                    <pre>{{error}}</pre>
-                </template>
-            </template>
-            <template if="{{converting}}">
-                <paper-spinner active></paper-spinner>
+            <template if="{{source}}">
+                <div>
+                    <img src="/scores?path={{encode(source)}}">
+                </div>
             </template>
         </div>
     </template>

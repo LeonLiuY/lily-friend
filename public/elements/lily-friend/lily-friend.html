@@ -1,6 +1,10 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="../../bower_components/paper-shadow/paper-shadow.html">
+<link rel="import" href="../../bower_components/core-animated-pages/core-animated-pages.html">
+<link rel="import" href="../../bower_components/core-animated-pages/transitions/slide-down.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
 
 <link rel="import" href="../lily-editor/lily-editor.html">
 <link rel="import" href="../lily-preview/lily-preview.html">
@@ -11,53 +15,90 @@
             .half {
                 padding: 1em;
                 width: 50%;
+                position: relative;
             }
-            .container{
+
+            .header {
+                background-color: #3f51b5;
+                color: white;
+                z-index: 1;
+            }
+
+            .container {
                 overflow-y: auto;
             }
-            paper-fab {
-                background-color: #03a9f4;
+
+            #log {
+                position: absolute;
+            }
+
+            #log {
+                background-color: #C5CAE9;
+                left: 1em;
+                right: 1em;
             }
         </style>
         <div horizontal layout fit>
-            <div class="half" vertical layout>
-                <div horizontal layout end-justified>
-                    <paper-fab mini icon="send" on-tap="{{send}}" disabled?="{{converting}}"></paper-fab>
+            <div class="half left" vertical layout>
+                <div horizontal layout end-justified class="header">
+                    <paper-icon-button mini icon="send" on-tap="{{send}}"
+                                       disabled?="{{converting}}"></paper-icon-button>
                 </div>
                 <div flex class="container">
                     <lily-editor source="{{source}}" flex></lily-editor>
                 </div>
             </div>
             <div class="half" vertical layout>
-                <div horizontal layout end-justified>
-                    <paper-fab mini icon="send" on-tap="{{send}}" disabled?="{{converting}}"></paper-fab>
+                <div horizontal layout center-justified class="header">
+                    <paper-icon-button mini icon="description" disabled?="{{converting}}"
+                                       on-tap="{{toggle}}"></paper-icon-button>
+                    <paper-icon-button mini icon="archive" disabled?="{{converting}}"></paper-icon-button>
                 </div>
-                <div flex class="container">
-                    <lily-preview source="{{rendered}}" converting="{{converting}}" error="{{error}}"></lily-preview>
-                </div>
+                <paper-shadow z="1" id="log" hidden?="{{!outVisible}}">
+                    <pre>{{out}}</pre>
+                </paper-shadow>
+                <template if="{{converting}}">
+                    <paper-spinner active></paper-spinner>
+                </template>
+                <template if="{{!converting}}">
+                    <div flex class="container">
+                        <lily-preview source="{{path}}" converting="{{converting}}"></lily-preview>
+                    </div>
+                </template>
             </div>
         </div>
         <core-ajax id="convertAjax"
-                method="POST"
-                url="/convert"
-                handleAs="text"
-                body="{{source}}"
-                on-core-response="{{responsed}}"
-                on-core-error="{{errored}}"></core-ajax>
+                   method="POST"
+                   url="/convert"
+                   handleAs="json"
+                   body="{{source}}"
+                   on-core-response="{{responsed}}"
+                   on-core-error="{{errored}}"></core-ajax>
     </template>
     <script>
         Polymer({
-            send: function(){
+            computed: {
+                'outVisible': 'error || _outVisible'
+            },
+            toggle: function () {
+                this._outVisible = !this._outVisible;
+            },
+            send: function () {
                 this.$.convertAjax.go();
                 this.converting = true;
+                this._outVisible = false;
+                this.error = false;
             },
-            responsed: function(event, detail, target){
-                this.rendered = detail.response;
-                this.error = undefined;
+            responsed: function (event, detail, target) {
+                this.path = detail.response.dir;
+                this.out = detail.response.out;
+                this.error = false;
                 this.converting = false;
             },
-            errored: function(event, detail, target) {
-                this.error = detail.xhr.responseText;
+            errored: function (event, detail, target) {
+                this.out = JSON.parse(detail.xhr.response).out;
+                this.error = true;
+                this.path = undefined;
                 this.converting = false;
             }
         });
