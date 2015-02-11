@@ -72,6 +72,7 @@
                    url="/convert"
                    handleAs="json"
                    body="{{source}}"
+                   contentType="text/plain"
                    on-core-response="{{responsed}}"
                    on-core-error="{{errored}}"></core-ajax>
     </template>
