@@ -30,12 +30,27 @@
 
             #log {
                 position: absolute;
+                background-color: #C5CAE9;
+                z-index: 1;
             }
 
-            #log {
-                background-color: #C5CAE9;
-                left: 1em;
-                right: 1em;
+            #log div {
+                overflow-y: auto;
+                height: 100%;
+            }
+
+            pre {
+                margin: 0;
+            }
+
+            .loading {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                border-radius: 50%;
+                height: 50px;
+                width: 50px;
+                background-color: white;
             }
         </style>
         <div horizontal layout fit>
@@ -54,30 +69,56 @@
                                        on-tap="{{toggle}}"></paper-icon-button>
                     <paper-icon-button mini icon="archive" disabled?="{{converting || error}}"></paper-icon-button>
                 </div>
-                <paper-shadow z="1" id="log" hidden?="{{!outVisible}}">
-                    <pre>{{out}}</pre>
-                </paper-shadow>
-                <template if="{{converting}}">
-                    <paper-spinner active></paper-spinner>
-                </template>
-                <template if="{{!converting}}">
-                    <div flex class="container">
-                        <lily-preview source="{{path}}" converting="{{converting}}"></lily-preview>
-                    </div>
-                </template>
+                <div flex style="position: relative">
+                    <paper-shadow z="1" id="log" hidden?="{{!outVisible}}" fit>
+                        <div style="overflow-y: auto;" id="logContainer">
+                            <template repeat="{{line in out}}">
+                                <pre>{{line}}</pre>
+                            </template>
+                        </div>
+                        <template if="{{converting}}">
+                            <paper-shadow z="1" class="loading" horizontal layout center-center>
+                                <paper-spinner active></paper-spinner>
+                            </paper-shadow>
+                        </template>
+                    </paper-shadow>
+                    <template if="{{!converting}}">
+                        <div class="container" fit>
+                            <lily-preview source="{{path}}" converting="{{converting}}"></lily-preview>
+                        </div>
+                    </template>
+                </div>
             </div>
         </div>
-        <core-ajax id="convertAjax"
-                   method="POST"
-                   url="/convert"
-                   handleAs="json"
-                   body="{{source}}"
-                   contentType="text/plain"
-                   on-core-response="{{responsed}}"
-                   on-core-error="{{errored}}"></core-ajax>
     </template>
     <script>
         Polymer({
+            source: '',
+            ready: function () {
+                this.ws = new WebSocket('ws://' + window.location.host + '/convert');
+                var self = this;
+                this.ws.onmessage = function (response) {
+                    var msg = JSON.parse(response.data);
+                    switch (msg.type) {
+                        case 'output':
+                            self.out.push(msg.out);
+                            self.async(function () {
+                                self.$.logContainer.scrollTop = self.$.logContainer.scrollHeight;
+                            });
+                            break;
+                        case 'error':
+                        case 'fail':
+                            self.errored(msg);
+                            break;
+                        case 'success':
+                            self.success(msg);
+                            break;
+                        default :
+                            console.log(msg);
+                            break;
+                    }
+                };
+            },
             computed: {
                 'outVisible': 'error || _outVisible'
             },
@@ -85,19 +126,19 @@
                 this._outVisible = !this._outVisible;
             },
             send: function () {
-                this.$.convertAjax.go();
+                this.ws.send(this.source || '');
                 this.converting = true;
-                this._outVisible = false;
+                this._outVisible = true;
+                this.out = [];
                 this.error = false;
             },
-            responsed: function (event, detail, target) {
-                this.path = detail.response.dir;
-                this.out = detail.response.out;
+            success: function (msg) {
+                this.path = msg.dir;
                 this.error = false;
                 this.converting = false;
+                this._outVisible = false;
             },
-            errored: function (event, detail, target) {
-                this.out = JSON.parse(detail.xhr.response).out;
+            errored: function (msg) {
                 this.error = true;
                 this.path = undefined;
                 this.converting = false;

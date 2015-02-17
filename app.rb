@@ -1,5 +1,7 @@
 require 'sinatra'
+require 'sinatra-websocket'
 require 'json'
+require 'open3'
 
 get '/' do
   send_file File.join(settings.public_folder, 'index.html')
@@ -7,24 +9,36 @@ end
 
 NAME='music'
 
-post '/convert' do
-  content_type 'application/json'
-  text = request.body.read.strip
-  if text.empty?
-    halt 400, {out: 'Text should not be empty!'}.to_json
-  end
-  dir = Dir.mktmpdir
-  File.open(File.join(dir, "#{NAME}.ly"), 'w') { |f|
-    f.write(text)
-  }
-  out = %x(cd #{dir} && lilypond -dbackend=svg #{NAME}.ly 2>&1)
-  exit_code = $?.exitstatus
-  if exit_code == 0
-    status 200
-    body ({dir: dir, out: out}.to_json)
+get '/convert' do
+  if !request.websocket?
+    halt 400, 'Only accept websocket requests'
   else
-    status 400
-    body ({out: out}.to_json)
+    request.websocket do |ws|
+      ws.onmessage do |text|
+        if text.empty?
+          ws.send({type: 'error', out: 'Lily text should not be empty!'}.to_json)
+        else
+          EM.defer do
+            dir = Dir.mktmpdir
+            File.open(File.join(dir, "#{NAME}.ly"), 'w') { |f|
+              f.write(text)
+            }
+            cmd = "cd #{dir} && lilypond -dbackend=svg #{NAME}.ly 2>&1"
+            Open3.popen2e(cmd) do |stdin, stdout_err, wait_thr|
+              while line = stdout_err.gets
+                ws.send({type: 'output', out: line}.to_json)
+              end
+              exit_status = wait_thr.value
+              if exit_status.success?
+                ws.send({type: 'success', dir: dir}.to_json)
+              else
+                ws.send({type: 'fail'}.to_json)
+              end
+            end
+          end
+        end
+      end
+    end
   end
 end
 
