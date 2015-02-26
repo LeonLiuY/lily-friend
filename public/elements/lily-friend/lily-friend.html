@@ -8,6 +8,12 @@
 
 <link rel="import" href="../lily-editor/lily-editor.html">
 <link rel="import" href="../lily-preview/lily-preview.html">
+
+<script>
+    PolymerExpressions.prototype.encodeURI = function(input) {
+        return encodeURI(input);
+    };
+</script>
 <polymer-element name="lily-friend">
 
     <template>
@@ -52,6 +58,12 @@
                 width: 50px;
                 background-color: white;
             }
+
+            #audio {
+                width: 80%;
+                max-width: 400px;
+                margin-right: 10px;
+            }
         </style>
         <div horizontal layout fit>
             <div class="half left" vertical layout>
@@ -64,10 +76,19 @@
                 </div>
             </div>
             <div class="half" vertical layout>
-                <div horizontal layout center-justified class="header">
-                    <paper-icon-button mini icon="description" disabled?="{{converting || error}}"
-                                       on-tap="{{toggle}}"></paper-icon-button>
-                    <paper-icon-button mini icon="archive" disabled?="{{converting || error}}"></paper-icon-button>
+                <div horizontal layout center class="header" id="audioHeader">
+                    <div horizontal layout center>
+                        <paper-icon-button mini icon="description" disabled?="{{converting || error}}"
+                                           on-tap="{{toggle}}"></paper-icon-button>
+                        <paper-icon-button mini icon="archive" disabled?="{{converting || error}}"></paper-icon-button>
+                    </div>
+                    <template if="{{audio}}">
+                        <div flex horizontal layout center end-justified>
+                            <audio controls self-end id="audio">
+                                <source src="/audios?path={{path | encodeURI}}" type="audio/mpeg">
+                            </audio>
+                        </div>
+                    </template>
                 </div>
                 <div flex style="position: relative">
                     <paper-shadow z="1" id="log" hidden?="{{!outVisible}}" fit>
@@ -113,6 +134,12 @@
                         case 'success':
                             self.success(msg);
                             break;
+                        case 'audio start':
+                            self.audio = true;
+                            break;
+                        case 'audio success':
+                            self.audioSuccess();
+                            break;
                         default :
                             console.log(msg);
                             break;
@@ -131,6 +158,7 @@
                 this._outVisible = true;
                 this.out = [];
                 this.error = false;
+                this.audio = false;
             },
             success: function (msg) {
                 this.path = msg.dir;
@@ -142,6 +170,9 @@
                 this.error = true;
                 this.path = undefined;
                 this.converting = false;
+            },
+            audioSuccess: function () {
+                this.$.audioHeader.querySelector("audio").load();
             }
         });
     </script>

@@ -13,16 +13,13 @@
         <div vertical layout>
             <template if="{{source}}">
                 <div>
-                    <img src="/scores?path={{encode(source)}}">
+                    <img src="/scores?path={{source | encodeURI}}">
                 </div>
             </template>
         </div>
     </template>
         <script>
             Polymer({
-                encode: function(text){
-                    return encodeURI(text);
-                }
             });
         </script>
 </polymer-element>
