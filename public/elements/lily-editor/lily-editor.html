@@ -4,9 +4,14 @@
 <link rel="import" href="../../bower_components/paper-input/paper-autogrow-textarea.html">
 <polymer-element name="lily-editor" attributes="source">
     <template>
+        <style>
+            paper-input-decorator {
+                font-family: monospace;
+            }
+        </style>
         <paper-input-decorator floatingLabel label="Lily text">
             <paper-autogrow-textarea id="a1">
-                <textarea value="{{source}}"></textarea>
+                <textarea value="{{source}}" spellcheck='false'></textarea>
             </paper-autogrow-textarea>
         </paper-input-decorator>
     </template>
