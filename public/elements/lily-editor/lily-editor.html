@@ -4,20 +4,26 @@
 <link rel="import" href="../../bower_components/paper-input/paper-autogrow-textarea.html">
 <polymer-element name="lily-editor" attributes="source">
     <template>
+        <link rel="stylesheet" href="../../bower_components/codemirror/lib/codemirror.css">
         <style>
-            paper-input-decorator {
-                font-family: monospace;
+            .CodeMirror {
+                height: auto;
             }
         </style>
-        <paper-input-decorator floatingLabel label="Lily text">
-            <paper-autogrow-textarea id="a1">
-                <textarea value="{{source}}" spellcheck='false'></textarea>
-            </paper-autogrow-textarea>
+        <paper-input-decorator>
+            <textarea value="{{source}}" spellcheck='false' id="textarea"></textarea>
         </paper-input-decorator>
     </template>
+    <script src="../../bower_components/codemirror/lib/codemirror.js"></script>
+    <script src="../../bower_components/codemirror/mode/javascript/javascript.js"></script>
     <script>
         Polymer({
-
+            domReady: function(){
+                this.myCodeMirror = CodeMirror.fromTextArea(this.$.textarea);
+            },
+            update: function(){
+                this.source = this.myCodeMirror.getDoc().getValue();
+            }
         });
     </script>
 </polymer-element>

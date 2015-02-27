@@ -72,7 +72,7 @@
                                        disabled?="{{converting}}"></paper-icon-button>
                 </div>
                 <div flex class="container">
-                    <lily-editor source="{{source}}" flex></lily-editor>
+                    <lily-editor source="{{source}}" id="editor"></lily-editor>
                 </div>
             </div>
             <div class="half" vertical layout>
@@ -113,7 +113,7 @@
     </template>
     <script>
         Polymer({
-            source: '',
+            source: 'function',
             ready: function () {
                 this.ws = new WebSocket('ws://' + window.location.host + '/convert');
                 var self = this;
@@ -152,6 +152,7 @@
                 this._outVisible = !this._outVisible;
             },
             send: function () {
+                this.$.editor.update();
                 this.ws.send(this.source || '');
                 this.converting = true;
                 this._outVisible = true;
