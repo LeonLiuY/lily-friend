@@ -8,6 +8,7 @@ get '/' do
 end
 
 NAME='music'
+SF_PATH= ENV['SF_PATH'] || '/usr/share/sounds/sf2/FluidR3_GM.sf2'
 
 get '/convert' do
   if !request.websocket?
@@ -37,7 +38,7 @@ get '/convert' do
             end
             if File.exists?(File.join(dir, 'music.midi'))
               ws.send({type: 'audio start'}.to_json)
-              cmd = "cd #{dir} && fluidsynth -F music.wav /usr/share/sounds/sf2/FluidR3_GM.sf2 music.midi && lame music.wav"
+              cmd = "cd #{dir} && fluidsynth -F music.wav #{SF_PATH} music.midi && lame music.wav"
               Open3.popen2e(cmd) do |stdin, stdout_err, wait_thr|
                 while line = stdout_err.gets
                   ws.send({type: 'audio output', out: line}.to_json)
