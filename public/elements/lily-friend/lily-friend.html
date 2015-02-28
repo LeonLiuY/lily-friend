@@ -113,7 +113,7 @@
     </template>
     <script>
         Polymer({
-            source: 'function',
+            source: '\\version "2.18.2"\n',
             ready: function () {
                 this.ws = new WebSocket('ws://' + window.location.host + '/convert');
                 var self = this;

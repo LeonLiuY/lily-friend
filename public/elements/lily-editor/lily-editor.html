@@ -15,11 +15,14 @@
         </paper-input-decorator>
     </template>
     <script src="../../bower_components/codemirror/lib/codemirror.js"></script>
-    <script src="../../bower_components/codemirror/mode/javascript/javascript.js"></script>
+    <script src="../../bower_components/codemirror/addon/mode/simple.js"></script>
+    <script src="mode/lilypond.js"></script>
     <script>
         Polymer({
             domReady: function(){
                 this.myCodeMirror = CodeMirror.fromTextArea(this.$.textarea);
+                this.myCodeMirror.focus();
+                CodeMirror.commands.goDocEnd(this.myCodeMirror);
             },
             update: function(){
                 this.source = this.myCodeMirror.getDoc().getValue();
