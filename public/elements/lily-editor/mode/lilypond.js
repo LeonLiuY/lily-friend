@@ -7,8 +7,10 @@ CodeMirror.defineSimpleMode("lilypond", {
         // groups must span the whole string in this case
         {regex: /\\[a-zA-Z][\w]*/, token: "keyword"},
         {regex: /(?:Staff|Voice|midiInstrument)\b/, token: "atom"},
+        {regex: /[|]/, token: "bracket"},
+        {regex: /[-~]/, token: "quote"},
         // indent and dedent properties guide autoindentation
-        {regex: /[\{\[\(]/, indent: true},
-        {regex: /[\}\]\)]/, dedent: true}
+        {regex: /[\{\[\(<]/, token: "quote", indent: true},
+        {regex: /[\}\]\)>]/, token: "quote", dedent: true}
     ]
 });
