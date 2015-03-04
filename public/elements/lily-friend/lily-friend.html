@@ -111,11 +111,12 @@
             </div>
         </div>
     </template>
+    <script src="../../bower_components/reconnectingWebsocket/reconnecting-websocket.min.js"></script>
     <script>
         Polymer({
             source: '\\version "2.18.2"\n',
             ready: function () {
-                this.ws = new WebSocket('ws://' + window.location.host + '/convert');
+                this.ws = new ReconnectingWebSocket('ws://' + window.location.host + '/convert');
                 var self = this;
                 this.ws.onmessage = function (response) {
                     var msg = JSON.parse(response.data);
