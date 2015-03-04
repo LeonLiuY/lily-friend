@@ -19,13 +19,14 @@
     <script src="mode/lilypond.js"></script>
     <script>
         Polymer({
-            domReady: function(){
+            domReady: function () {
                 this.myCodeMirror = CodeMirror.fromTextArea(this.$.textarea);
                 this.myCodeMirror.focus();
                 CodeMirror.commands.goDocEnd(this.myCodeMirror);
-            },
-            update: function(){
-                this.source = this.myCodeMirror.getDoc().getValue();
+                var self = this;
+                this.myCodeMirror.getDoc().on('change', function (doc, obj) {
+                    self.source = self.myCodeMirror.getDoc().getValue();
+                });
             }
         });
     </script>
