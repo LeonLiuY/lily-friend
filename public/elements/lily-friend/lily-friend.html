@@ -7,6 +7,7 @@
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../bower_components/core-localstorage/core-localstorage.html">
 <link rel="import" href="../../bower_components/core-icons/hardware-icons.html">
+<link rel="import" href="../../bower_components/core-icons/social-icons.html">
 
 <link rel="import" href="../lily-editor/lily-editor.html">
 <link rel="import" href="../lily-preview/lily-preview.html">
@@ -84,10 +85,12 @@
                         <paper-icon-button mini icon="description" disabled?="{{converting || error}}"
                                            on-tap="{{toggle}}"></paper-icon-button>
                         <paper-icon-button mini icon="archive" disabled?="{{converting || error}}"></paper-icon-button>
+                        <paper-icon-button mini icon="social:share" disabled?="{{converting || error}}"></paper-icon-button>
                     </div>
                     <template if="{{audio}}">
                         <div flex horizontal layout center end-justified>
-                            <paper-spinner active?="{{!audioReady}}"></paper-spinner>
+                            <core-icon icon="error" hidden?="{{!audioError}}"></core-icon>
+                            <paper-spinner active hidden?="{{audioReady || audioError}}"></paper-spinner>
                             <paper-icon-button mini icon="hardware:headset" disabled?={{!audioReady}}
                                                on-tap="{{toggleAudio}}"></paper-icon-button>
                         </div>
@@ -146,6 +149,9 @@
                         case 'audio success':
                             self.audioSuccess();
                             break;
+                        case 'audio fail':
+                            self.audioFail();
+                            break;
                         default :
                             console.log(msg);
                             break;
@@ -170,6 +176,7 @@
                 this.error = false;
                 this.audio = false;
                 this.audioReady = false;
+                this.audioError = false;
             },
             success: function (msg) {
                 this.path = msg.dir;
@@ -186,6 +193,9 @@
             audioSuccess: function () {
                 this.audioReady = true;
                 this.$.audio.setAttribute("src", "/audios?path=" + encodeURI(this.path));
+            },
+            audioFail: function(){
+                this.audioError = true;
             }
         });
     </script>
