@@ -2,7 +2,7 @@
 
 <link rel="import" href="../lily-editor/lily-editor.html">
 <link rel="import" href="../lily-preview/lily-preview.html">
-<polymer-element name="lily-preview" attributes="source">
+<polymer-element name="lily-preview" attributes="path pages">
 
     <template>
         <style>
@@ -11,15 +11,16 @@
             }
         </style>
         <div vertical layout>
-            <template if="{{source}}">
+            <template if="{{path}}">
                 <div>
-                    <img src="/scores?path={{source | encodeURI}}">
+                    <template repeat="{{page in pages}}">
+                        <img src="/scores?path={{path | encodeURI}}&page={{page | encodeURI}}">
+                    </template>
                 </div>
             </template>
         </div>
     </template>
-        <script>
-            Polymer({
-            });
-        </script>
+    <script>
+        Polymer({});
+    </script>
 </polymer-element>

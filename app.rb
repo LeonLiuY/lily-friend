@@ -31,7 +31,12 @@ get '/convert' do
               end
               exit_status = wait_thr.value
               if exit_status.success?
-                ws.send({type: 'success', dir: dir}.to_json)
+                pages = Dir["#{dir}/*.svg"].sort { |x, y|
+                  x[/(\d+)\.svg$/, 1].to_i <=> y[/(\d+)\.svg$/, 1].to_i
+                }.map { |page|
+                  File.basename(page)
+                }
+                ws.send({type: 'success', dir: dir, pages: pages}.to_json)
               else
                 ws.send({type: 'fail'}.to_json)
               end
@@ -60,7 +65,8 @@ end
 
 get '/scores' do
   path = params[:path]
-  send_file File.join(path, 'music.svg')
+  page = params[:page]
+  send_file File.join(path, page)
 end
 
 get '/audios' do

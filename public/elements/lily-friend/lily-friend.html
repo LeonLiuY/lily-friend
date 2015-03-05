@@ -106,7 +106,7 @@
                     </paper-shadow>
                     <template if="{{!converting}}">
                         <div class="container" fit>
-                            <lily-preview source="{{path}}" converting="{{converting}}"></lily-preview>
+                            <lily-preview path="{{path}}" pages="{{pages}}" converting="{{converting}}"></lily-preview>
                         </div>
                     </template>
                 </div>
@@ -164,6 +164,7 @@
             },
             success: function (msg) {
                 this.path = msg.dir;
+                this.pages = msg.pages;
                 this.error = false;
                 this.converting = false;
                 this._outVisible = false;
