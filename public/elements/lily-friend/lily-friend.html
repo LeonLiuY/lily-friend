@@ -6,12 +6,13 @@
 <link rel="import" href="../../bower_components/core-animated-pages/transitions/slide-down.html">
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../bower_components/core-localstorage/core-localstorage.html">
+<link rel="import" href="../../bower_components/core-icons/hardware-icons.html">
 
 <link rel="import" href="../lily-editor/lily-editor.html">
 <link rel="import" href="../lily-preview/lily-preview.html">
 
 <script>
-    PolymerExpressions.prototype.encodeURI = function(input) {
+    PolymerExpressions.prototype.encodeURI = function (input) {
         return encodeURI(input);
     };
 </script>
@@ -61,9 +62,9 @@
             }
 
             #audio {
-                width: 80%;
-                max-width: 400px;
-                margin-right: 10px;
+                position: absolute;
+                right: 0;
+                top: 46px;
             }
         </style>
         <core-localstorage name="lily-friend-source" value="{{source}}"></core-localstorage>
@@ -78,7 +79,7 @@
                 </div>
             </div>
             <div class="half" vertical layout>
-                <div horizontal layout center class="header" id="audioHeader">
+                <div horizontal layout center class="header" id="audioHeader" style="position: relative;">
                     <div horizontal layout center>
                         <paper-icon-button mini icon="description" disabled?="{{converting || error}}"
                                            on-tap="{{toggle}}"></paper-icon-button>
@@ -86,10 +87,13 @@
                     </div>
                     <template if="{{audio}}">
                         <div flex horizontal layout center end-justified>
-                            <audio controls self-end id="audio">
-                            </audio>
+                            <paper-spinner active?="{{!audioReady}}"></paper-spinner>
+                            <paper-icon-button mini icon="hardware:headset" disabled?={{!audioReady}}
+                                               on-tap="{{toggleAudio}}"></paper-icon-button>
                         </div>
                     </template>
+                    <audio controls self-end id="audio" hidden?="{{!audioVisible}}">
+                    </audio>
                 </div>
                 <div flex style="position: relative">
                     <paper-shadow z="1" id="log" hidden?="{{!outVisible}}" fit>
@@ -149,10 +153,14 @@
                 };
             },
             computed: {
-                'outVisible': 'error || _outVisible'
+                'outVisible': 'error || _outVisible',
+                'audioVisible': 'audioReady && _audioVisible'
             },
             toggle: function () {
                 this._outVisible = !this._outVisible;
+            },
+            toggleAudio: function () {
+                this._audioVisible = !this._audioVisible;
             },
             send: function () {
                 this.ws.send(this.source || '');
@@ -161,6 +169,7 @@
                 this.out = [];
                 this.error = false;
                 this.audio = false;
+                this.audioReady = false;
             },
             success: function (msg) {
                 this.path = msg.dir;
@@ -175,7 +184,8 @@
                 this.converting = false;
             },
             audioSuccess: function () {
-                this.$.audioHeader.querySelector("audio").setAttribute("src", "/audios?path=" + encodeURI(this.path));
+                this.audioReady = true;
+                this.$.audio.setAttribute("src", "/audios?path=" + encodeURI(this.path));
             }
         });
     </script>
