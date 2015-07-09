@@ -1,105 +1,113 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-localstorage/iron-localstorage.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../../bower_components/core-ajax/core-ajax.html">
-<link rel="import" href="../../bower_components/paper-shadow/paper-shadow.html">
-<link rel="import" href="../../bower_components/core-animated-pages/core-animated-pages.html">
-<link rel="import" href="../../bower_components/core-animated-pages/transitions/slide-down.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
-<link rel="import" href="../../bower_components/core-localstorage/core-localstorage.html">
-<link rel="import" href="../../bower_components/core-icons/hardware-icons.html">
-<link rel="import" href="../../bower_components/core-icons/social-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/hardware-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 
-<link rel="import" href="../lily-editor/lily-editor.html">
-<link rel="import" href="../lily-preview/lily-preview.html">
+<dom-module id="lily-friend">
+    <style>
+        .out {
+            @apply(--layout-horizontal);
+            @apply(--layout-fit);
+        }
+        .half {
+            padding: 1em;
+            width: 50%;
+            position: relative;
+        }
+        .left .header {
+            @apply(--layout-horizontal);
+            @apply(--layout-end-justified);
+        }
 
-<script>
-    PolymerExpressions.prototype.encodeURI = function (input) {
-        return encodeURI(input);
-    };
-</script>
-<polymer-element name="lily-friend">
+        .header {
+            background-color: #3f51b5;
+            color: white;
+            z-index: 1;
+        }
 
+        .container {
+            overflow-y: auto;
+        }
+
+        #log {
+            position: absolute;
+            background-color: #C5CAE9;
+            z-index: 1;
+        }
+
+        #log div {
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        pre {
+            margin: 0;
+        }
+
+        .loading {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            border-radius: 50%;
+            height: 50px;
+            width: 50px;
+            background-color: white;
+        }
+
+        #audio {
+            position: absolute;
+            right: 0;
+            top: 46px;
+        }
+
+        #audioHeader {
+            @apply(--layout-horizontal);
+            @apply(--layout-center);
+            position: relative;
+        }
+        .button-set {
+            @apply(--layout-horizontal);
+            @apply(--layout-center);
+        }
+    </style>
     <template>
-        <style>
-            .half {
-                padding: 1em;
-                width: 50%;
-                position: relative;
-            }
-
-            .header {
-                background-color: #3f51b5;
-                color: white;
-                z-index: 1;
-            }
-
-            .container {
-                overflow-y: auto;
-            }
-
-            #log {
-                position: absolute;
-                background-color: #C5CAE9;
-                z-index: 1;
-            }
-
-            #log div {
-                overflow-y: auto;
-                height: 100%;
-            }
-
-            pre {
-                margin: 0;
-            }
-
-            .loading {
-                position: absolute;
-                top: 20px;
-                right: 20px;
-                border-radius: 50%;
-                height: 50px;
-                width: 50px;
-                background-color: white;
-            }
-
-            #audio {
-                position: absolute;
-                right: 0;
-                top: 46px;
-            }
-        </style>
-        <core-localstorage name="lily-friend-source" value="{{source}}"></core-localstorage>
-        <div horizontal layout fit>
-            <div class="half left" vertical layout>
-                <div horizontal layout end-justified class="header">
-                    <paper-icon-button mini icon="send" on-tap="{{send}}"
-                                       disabled?="{{converting}}"></paper-icon-button>
+        <iron-localstorage name="lily-friend-source" value="{{source}}"></iron-localstorage>
+        <div class="out">
+            <div class="half left">
+                <div class="header">
+                    <paper-icon-button mini icon="send" on-tap="send"
+                                       disabled$="{{converting}}"></paper-icon-button>
                 </div>
-                <div flex class="container">
+                <div class="container">
                     <lily-editor source="{{source}}" id="editor"></lily-editor>
                 </div>
             </div>
-            <div class="half" vertical layout>
-                <div horizontal layout center class="header" id="audioHeader" style="position: relative;">
-                    <div horizontal layout center>
-                        <paper-icon-button mini icon="description" disabled?="{{converting || error}}"
-                                           on-tap="{{toggle}}"></paper-icon-button>
-                        <paper-icon-button mini icon="archive" disabled?="{{converting || error}}"></paper-icon-button>
-                        <paper-icon-button mini icon="social:share" disabled?="{{converting || error}}"></paper-icon-button>
+            <div class="half">
+                <div class="header" id="audioHeader">
+                    <div class="button-set">
+                        <paper-icon-button mini icon="description" disabled$="{{converting || error}}"
+                                           on-tap="toggle"></paper-icon-button>
+                        <paper-icon-button mini icon="archive" disabled$="{{converting || error}}"></paper-icon-button>
+                        <paper-icon-button mini icon="social:share" disabled$="{{converting || error}}"></paper-icon-button>
                     </div>
                     <template if="{{audio}}">
                         <div flex horizontal layout center end-justified>
-                            <core-icon icon="error" hidden?="{{!audioError}}"></core-icon>
-                            <paper-spinner active hidden?="{{audioReady || audioError}}"></paper-spinner>
-                            <paper-icon-button mini icon="hardware:headset" disabled?={{!audioReady}}
-                                               on-tap="{{toggleAudio}}"></paper-icon-button>
+                            <core-icon icon="error" hidden$="{{!audioError}}"></core-icon>
+                            <paper-spinner active hidden$="{{audioReady || audioError}}"></paper-spinner>
+                            <paper-icon-button mini icon="hardware:headset" disabled$={{!audioReady}}
+                                               on-tap="toggleAudio"></paper-icon-button>
                         </div>
                     </template>
-                    <audio controls self-end id="audio" hidden?="{{!audioVisible}}">
+                    <audio controls id="audio" hidden$="[[!audioVisible]]">
                     </audio>
                 </div>
                 <div flex style="position: relative">
-                    <paper-shadow z="1" id="log" hidden?="{{!outVisible}}" fit>
+                    <paper-shadow z="1" id="log" hidden$="{{!outVisible}}" fit>
                         <div style="overflow-y: auto;" id="logContainer">
                             <template repeat="{{line in out}}">
                                 <pre>{{line}}</pre>
@@ -120,10 +128,13 @@
             </div>
         </div>
     </template>
+
     <script src="../../bower_components/reconnectingWebsocket/reconnecting-websocket.min.js"></script>
     <script>
         Polymer({
+            is: "lily-friend",
             source: '\\version "2.18.2"\n',
+            audioReady: false,
             ready: function () {
                 this.ws = new ReconnectingWebSocket('ws://' + window.location.host + '/convert');
                 var self = this;
@@ -199,6 +210,5 @@
             }
         });
     </script>
-</polymer-element>
 
-
+</dom-module>
