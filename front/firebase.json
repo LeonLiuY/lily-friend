@@ -1,0 +1,9 @@
+{
+  "firebase": "glaring-torch-7542",
+  "public": "dist",
+  "ignore": [
+    "firebase.json",
+    "**/.*",
+    "**/node_modules/**"
+  ]
+}
